@@ -1,14 +1,20 @@
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.6.10" apply false
 }
 
-group = "org.example"
+group = "io.bsamartins.graphql.federation"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation(kotlin("stdlib"))
+    }
 }
 
-dependencies {
-    implementation(kotlin("stdlib"))
-}
+
