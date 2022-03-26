@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.6.10" apply false
+    kotlin("plugin.spring") version "1.6.10" apply false
 }
 
 group = "io.bsamartins.graphql.federation"
@@ -13,6 +14,7 @@ subprojects {
     }
 
     dependencies {
+        val implementation by configurations
         implementation(kotlin("stdlib"))
     }
 }
