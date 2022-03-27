@@ -1,5 +1,6 @@
 plugins {
     id("org.springframework.boot") version "2.6.5" apply false
+    id("com.netflix.dgs.codegen") version "5.1.17" apply false
 }
 
 subprojects {
@@ -7,8 +8,6 @@ subprojects {
     apply(plugin = "io.spring.dependency-management")
 
     dependencies {
-        constraints {
-            add("implementation", "io.leangen.graphql:graphql-spqr-spring-boot-starter:0.0.6")
-        }
+        implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"))
     }
 }

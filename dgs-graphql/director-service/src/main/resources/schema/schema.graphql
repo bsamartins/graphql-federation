@@ -1,0 +1,8 @@
+type Query {
+    findDirectors: [DirectorModel]
+}
+
+type DirectorModel @key(fields: "id") {
+    id: Int
+    name: String
+}

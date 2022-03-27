@@ -1,0 +1,8 @@
+type Query {
+    findMovies: [MovieModel]
+}
+
+type MovieModel @key(fields: "id") {
+    id: Int
+    title: String
+}

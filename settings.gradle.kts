@@ -1,3 +1,4 @@
 rootProject.name = "graphql-federation"
 
-include(":spqr-graphql:movie-service")
+include(":dgs-graphql:movie-service")
+include(":dgs-graphql:director-service")
