@@ -3,10 +3,8 @@ plugins {
 }
 
 subprojects {
-    apply(plugin = "org.springframework.boot")
-    apply(plugin = "io.spring.dependency-management")
-
     dependencies {
-        implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release"))
+        implementation(platform("org.springframework.boot:spring-boot-dependencies"))
+        implementation(platform("com.netflix.graphql.dgs:graphql-dgs-platform-dependencies"))
     }
 }

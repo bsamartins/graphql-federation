@@ -17,6 +17,12 @@ subprojects {
     dependencies {
         val implementation by configurations
         implementation(kotlin("stdlib"))
+
+        constraints {
+            add("implementation", "org.springframework.boot:spring-boot-dependencies:2.6.3")
+            add("implementation", "io.leangen.graphql:graphql-spqr-spring-boot-starter:0.0.6")
+            add("implementation", "com.netflix.graphql.dgs:graphql-dgs-platform-dependencies:latest.release")
+        }
     }
 }
 
