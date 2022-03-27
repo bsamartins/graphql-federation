@@ -11,3 +11,7 @@ dependencies {
 tasks.named<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask>("generateJava") {
     packageName = "io.bsamartins.service.movie.model"
 }
+
+tasks.named("compileKotlin") {
+    dependsOn += "generateJava"
+}
