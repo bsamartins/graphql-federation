@@ -2,7 +2,7 @@ type Query {
     findDirectors: [DirectorModel]
 }
 
-type DirectorModel @key(fields: "id") {
-    id: Int
-    name: String
+type DirectorModel @key(fields: "directorId") {
+    directorId: Int!
+    name: String!
 }

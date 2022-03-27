@@ -2,7 +2,12 @@ type Query {
     findMovies: [MovieModel]
 }
 
-type MovieModel @key(fields: "id") {
-    id: Int
-    title: String
+type MovieModel @key(fields: "movieId") {
+    movieId: Int!
+    title: String!
+    director: DirectorModel!
+}
+
+type DirectorModel @key(fields: "directorId") @extends {
+    directorId: Int! @external
 }

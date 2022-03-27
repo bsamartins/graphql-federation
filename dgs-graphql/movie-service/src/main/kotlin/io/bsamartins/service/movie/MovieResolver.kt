@@ -2,6 +2,7 @@ package io.bsamartins.service.movie
 
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
+import io.bsamartins.service.movie.model.types.DirectorModel
 import io.bsamartins.service.movie.model.types.MovieModel
 
 
@@ -9,7 +10,7 @@ import io.bsamartins.service.movie.model.types.MovieModel
 class MovieResolver {
 
     private val movies = listOf(
-        MovieModel(id = 1, "Eyes Wide Shut")
+        MovieModel(movieId = 1, "Eyes Wide Shut", director = DirectorModel(directorId = 1))
     )
 
     @DgsQuery
