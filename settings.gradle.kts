@@ -5,3 +5,4 @@ include(":graphql-dgs:service-director")
 
 include(":graphql-spqr:service-movie")
 include(":graphql-spqr:service-director")
+include(":graphql-spqr:graphql-spqr-federation")
