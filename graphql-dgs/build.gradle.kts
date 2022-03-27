@@ -1,5 +1,4 @@
 plugins {
-    id("org.springframework.boot") version "2.6.5" apply false
     id("com.netflix.dgs.codegen") version "5.1.17" apply false
 }
 
