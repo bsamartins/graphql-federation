@@ -5,7 +5,7 @@ type Query {
 type MovieModel @key(fields: "movieId") {
     movieId: Int!
     title: String!
-    director: DirectorModel!
+    director: DirectorModel
 }
 
 type DirectorModel @key(fields: "directorId") @extends {
