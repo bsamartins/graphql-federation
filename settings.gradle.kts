@@ -1,7 +1,7 @@
 rootProject.name = "graphql-federation"
 
-include(":graphql-dgs:movie-service")
-include(":graphql-dgs:director-service")
+include(":graphql-dgs:service-movie")
+include(":graphql-dgs:service-director")
 
-include(":graphql-spqr:movie-service")
-include(":graphql-spqr:director-service")
+include(":graphql-spqr:service-movie")
+include(":graphql-spqr:service-director")
