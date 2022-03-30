@@ -1,11 +1,11 @@
-package io.bsamartins.service.director
+package io.bsamartins.service.movie
 
 import graphql.schema.DataFetchingEnvironment
-import io.bsamartins.director.DirectorService
+import io.bsamartins.movie.MovieService
 import io.bsamartins.spqr.federation.FederationDataFetcher
 import org.slf4j.LoggerFactory
 
-class EntitiesDataFetcher(val directorService: DirectorService) : FederationDataFetcher() {
+class EntitiesDataFetcher(val movieService: MovieService) : FederationDataFetcher() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -24,9 +24,9 @@ class EntitiesDataFetcher(val directorService: DirectorService) : FederationData
         logger.info("Schema type: {}", type)
 
         return when(typeName) {
-            "DirectorModel" -> {
-                val directorId = representation["directorId"]!!.toString().toInt()
-                directorService.findById(directorId)?.toModel()
+            "MovieModel" -> {
+                val directorId = representation["movieId"]!!.toString().toInt()
+                movieService.findById(directorId)?.toModel()
             }
             else -> {
                 logger.error("No resolver for type: '{}'", typeName)

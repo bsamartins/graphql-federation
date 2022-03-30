@@ -13,8 +13,10 @@ import graphql.execution.instrumentation.parameters.InstrumentationExecutionPara
 import graphql.introspection.Introspection
 import graphql.schema.*
 import graphql.schema.idl.SchemaPrinter
+import io.bsamartins.spqr.SimpleNameClassTypeResolver
 import io.leangen.graphql.GraphQLSchemaGenerator
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -23,7 +25,11 @@ import org.springframework.context.annotation.Configuration
 class SpqrFederationAutoConfiguration {
 
     @Bean
-    fun graphQLSchema(schemaGenerator: GraphQLSchemaGenerator, federationDataFetcher: FederationDataFetcher): GraphQLSchema {
+    fun graphQLSchema(
+        schemaGenerator: GraphQLSchemaGenerator,
+        federationDataFetcher: FederationDataFetcher,
+        typeResolver: TypeResolver,
+    ): GraphQLSchema {
         val schema = schemaGenerator.generate()
 
         // UNREPRESENTABLE scalar
@@ -81,7 +87,7 @@ class SpqrFederationAutoConfiguration {
 
         val federationSchema = Federation.transform(newSchema)
             .fetchEntities(federationDataFetcher)
-            .resolveEntityType(typeResolver())
+            .resolveEntityType(typeResolver)
             .build()
             .let { GraphQLSchema.newSchema(it) }
             .additionalDirectives(FederationDirectives.allDirectives)
@@ -100,8 +106,8 @@ class SpqrFederationAutoConfiguration {
                     .replace("\r", ""))
                 return SimpleInstrumentationContext.whenCompleted { res, t ->
                     if (t == null) {
-                        val json = objectMapper.writeValueAsString(res)
-                        logger.info("Execution result: {}", json)
+//                        val json = objectMapper.writeValueAsString(res)
+//                        logger.info("Execution result: {}", json)
                     }
                 }
             }
@@ -112,35 +118,10 @@ class SpqrFederationAutoConfiguration {
         }
     }
 
-    private fun typeResolver(): TypeResolver {
-        return TypeResolver {
-            println("Environment -> $it")
-            null
-        }
-    }
-
-    private fun createSchemaWithDirectives(schema: GraphQLSchema): GraphQLSchema {
-        return Federation.transform(schema)
-//            .fetchEntities { env: DataFetchingEnvironment ->
-//                env.getArgument<List<Map<String, Any>>>(_Entity.argumentName)
-//                .map { values: Map<String, Any> ->
-////                    if ("Product" == values["__typename"]) {
-////                        val upc = values["upc"]
-////                        if (upc is String) {
-////                            return@map productService.find(upc as String?)
-////                        }
-////                    }
-//                    null
-//                }
-//        }
-//    .resolveEntityType { env ->
-//                val src = env.getObject<Any>()
-//                if (src is Product) {
-//                    return@resolveEntityType env.schema.getObjectType("Product")
-//                }
-//                null
-//            }
-        .build()
+    @Bean
+    @ConditionalOnMissingBean(TypeResolver::class)
+    fun typeResolver(): TypeResolver {
+        return SimpleNameClassTypeResolver()
     }
 
     private fun printSchema(schema: GraphQLSchema) {
