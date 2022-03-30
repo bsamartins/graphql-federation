@@ -1,6 +1,7 @@
 package io.bsamartins.service.movie
 
 import io.bsamartins.movie.MovieService
+import io.leangen.graphql.annotations.GraphQLArgument
 import io.leangen.graphql.annotations.GraphQLQuery
 import io.leangen.graphql.spqr.spring.annotations.GraphQLApi
 import org.springframework.stereotype.Component
@@ -12,4 +13,7 @@ class MovieResolver(private val movieService: MovieService) {
 
     @GraphQLQuery
     fun findMovies(): List<MovieModel> = movieService.findAll().map { it.toModel() }
+
+    @GraphQLQuery
+    fun findMovieById(@GraphQLArgument(name = "id") id: Int): MovieModel? = movieService.findById(id)?.toModel()
 }
