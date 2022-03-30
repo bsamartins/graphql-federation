@@ -2,12 +2,14 @@ package io.bsamartins.spqr.federation
 
 import com.apollographql.federation.graphqljava.Federation
 import com.apollographql.federation.graphqljava.FederationDirectives
-import com.apollographql.federation.graphqljava._Entity
+import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.ExecutionResult
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationContext
 import graphql.execution.instrumentation.SimpleInstrumentation
+import graphql.execution.instrumentation.SimpleInstrumentationContext
 import graphql.execution.instrumentation.parameters.InstrumentationExecuteOperationParameters
+import graphql.execution.instrumentation.parameters.InstrumentationExecutionParameters
 import graphql.introspection.Introspection
 import graphql.schema.*
 import graphql.schema.idl.SchemaPrinter
@@ -15,14 +17,13 @@ import io.leangen.graphql.GraphQLSchemaGenerator
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import com.apollographql.federation.graphqljava.SchemaTransformer
 
 
 @Configuration
 class SpqrFederationAutoConfiguration {
 
     @Bean
-    fun graphQLSchema(schemaGenerator: GraphQLSchemaGenerator): GraphQLSchema {
+    fun graphQLSchema(schemaGenerator: GraphQLSchemaGenerator, federationDataFetcher: FederationDataFetcher): GraphQLSchema {
         val schema = schemaGenerator.generate()
 
         // UNREPRESENTABLE scalar
@@ -79,7 +80,7 @@ class SpqrFederationAutoConfiguration {
 
 
         val federationSchema = Federation.transform(newSchema)
-            .fetchEntities(entitiesDataFetcher())
+            .fetchEntities(federationDataFetcher)
             .resolveEntityType(typeResolver())
             .build()
             .let { GraphQLSchema.newSchema(it) }
@@ -90,15 +91,24 @@ class SpqrFederationAutoConfiguration {
     }
 
     @Bean
-    fun loggingInstrumentation(): Instrumentation {
+    fun loggingInstrumentation(objectMapper: ObjectMapper): Instrumentation {
         return object : SimpleInstrumentation() {
             private val logger = LoggerFactory.getLogger(this::class.java)
-            override fun beginExecuteOperation(parameters: InstrumentationExecuteOperationParameters): InstrumentationContext<ExecutionResult> {
-                logger.info("Query: {}", parameters.executionContext.executionInput.query
+            override fun beginExecution(parameters: InstrumentationExecutionParameters): InstrumentationContext<ExecutionResult> {
+                logger.info("Query: {}", parameters.executionInput.query
                     .replace("\n", "")
                     .replace("\r", ""))
+                return SimpleInstrumentationContext.whenCompleted { res, t ->
+                    if (t == null) {
+                        val json = objectMapper.writeValueAsString(res)
+                        logger.info("Execution result: {}", json)
+                    }
+                }
+            }
+            override fun beginExecuteOperation(parameters: InstrumentationExecuteOperationParameters): InstrumentationContext<ExecutionResult> {
                 return super.beginExecuteOperation(parameters)
             }
+
         }
     }
 
@@ -106,15 +116,6 @@ class SpqrFederationAutoConfiguration {
         return TypeResolver {
             println("Environment -> $it")
             null
-        }
-    }
-
-    private fun entitiesDataFetcher(): DataFetcher<List<*>> {
-        return DataFetcher { env ->
-            val representations = env.getArgument<List<String>>(_Entity.argumentName)
-            println("type: $representations, ${representations::class}")
-            representations.forEach { println(it) }
-            emptyList<Any>()
         }
     }
 
