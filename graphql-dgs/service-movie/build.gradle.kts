@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":common:service-movie"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-boot-starter")
 }

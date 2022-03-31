@@ -2,19 +2,23 @@ package io.bsamartins.service.movie
 
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsQuery
+import io.bsamartins.movie.Movie
+import io.bsamartins.movie.MovieService
 import io.bsamartins.service.movie.model.types.DirectorModel
 import io.bsamartins.service.movie.model.types.MovieModel
 
 
 @DgsComponent
-class MovieResolver {
-
-    private val movies = listOf(
-        MovieModel(movieId = 1, "Eyes Wide Shut", director = DirectorModel(directorId = 1)),
-        MovieModel(movieId = 2, "Top Gun", director = DirectorModel(directorId = 2)),
-        MovieModel(movieId = 3, "New Movie", director = null),
-    )
+class MovieResolver(private val movieService: MovieService) {
 
     @DgsQuery
-    fun findMovies(): List<MovieModel> = movies
+    fun findMovies(): List<MovieModel> = movieService.findAll().map { it.toModel() }
+}
+
+private fun Movie.toModel(): MovieModel {
+    return MovieModel(
+        movieId = this.id,
+        title = this.title,
+        director = DirectorModel(this.directorId)
+    )
 }
