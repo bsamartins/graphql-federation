@@ -1,7 +1,7 @@
 package io.bsamartins.service.director
 
 import io.bsamartins.director.Director
-import io.bsamartins.spqr.federation.annotation.FederationKey
+import io.bsamartins.spqr.federation.annotation.directive.FederationKey
 
 @FederationKey(fields = "directorId")
 data class DirectorModel(val directorId: Int, val name: String)

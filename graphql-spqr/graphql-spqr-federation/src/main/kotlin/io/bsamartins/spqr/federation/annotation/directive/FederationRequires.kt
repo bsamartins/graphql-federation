@@ -1,4 +1,4 @@
-package io.bsamartins.spqr.federation.annotation
+package io.bsamartins.spqr.federation.annotation.directive
 
 import com.apollographql.federation.graphqljava.FederationDirectives
 import io.leangen.graphql.annotations.types.GraphQLDirective

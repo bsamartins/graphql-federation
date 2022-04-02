@@ -1,9 +1,9 @@
-package io.bsamartins.spqr.federation.annotation
+package io.bsamartins.spqr.federation.annotation.directive
 
 import com.apollographql.federation.graphqljava.FederationDirectives
 import io.leangen.graphql.annotations.types.GraphQLDirective
 
-@GraphQLDirective(name = FederationDirectives.providesName)
+@GraphQLDirective(name = FederationDirectives.externalName)
 @Retention
 @Target(allowedTargets = [AnnotationTarget.FIELD])
-annotation class FederationProvides(val fields: String)
+annotation class FederationExternal
