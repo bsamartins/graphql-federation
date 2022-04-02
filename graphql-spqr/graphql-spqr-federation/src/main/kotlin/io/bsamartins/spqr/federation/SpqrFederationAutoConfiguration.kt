@@ -32,6 +32,21 @@ class SpqrFederationAutoConfiguration {
     ): GraphQLSchema {
         val schema = schemaGenerator.generate()
 
+        // Add new definitions to schema
+        val newSchema = GraphQLSchema.newSchema(schema)
+            .registerDirectives(schema)
+            .additionalDirectives(FederationDirectives.allDirectives)
+            .build()
+
+        val federationSchema = Federation.transform(newSchema)
+            .fetchEntities(federationDataFetcher)
+            .resolveEntityType(typeResolver)
+            .build()
+        printSchema(federationSchema)
+        return federationSchema
+    }
+
+    private fun GraphQLSchema.Builder.registerDirectives(schema: GraphQLSchema): GraphQLSchema.Builder {
         // UNREPRESENTABLE scalar
         val unrepresentableScalar = schema.getType("UNREPRESENTABLE") as GraphQLScalarType
 
@@ -77,23 +92,9 @@ class SpqrFederationAutoConfiguration {
             )
             .build()
 
-        // Add new definitions to schema
-        val newSchema = GraphQLSchema.newSchema(schema)
-            .additionalDirective(mappedTypeDirective)
+        return this.additionalDirective(mappedTypeDirective)
             .additionalDirective(mappedOperationDirective)
             .additionalDirective(mappedInputFieldDirective)
-            .build()
-
-
-        val federationSchema = Federation.transform(newSchema)
-            .fetchEntities(federationDataFetcher)
-            .resolveEntityType(typeResolver)
-            .build()
-            .let { GraphQLSchema.newSchema(it) }
-            .additionalDirectives(FederationDirectives.allDirectives)
-            .build()
-        printSchema(federationSchema)
-        return federationSchema
     }
 
     @Bean
@@ -101,20 +102,20 @@ class SpqrFederationAutoConfiguration {
         return object : SimpleInstrumentation() {
             private val logger = LoggerFactory.getLogger(this::class.java)
             override fun beginExecution(parameters: InstrumentationExecutionParameters): InstrumentationContext<ExecutionResult> {
-                logger.info("Query: {}", parameters.executionInput.query
-                    .replace("\n", "")
-                    .replace("\r", ""))
+                logger.info(
+                    "Query: {}",
+                    parameters.executionInput.query
+                        .replace("\n", "")
+                        .replace("\r", ""))
                 return SimpleInstrumentationContext.whenCompleted { res, t ->
                     if (t == null) {
-//                        val json = objectMapper.writeValueAsString(res)
-//                        logger.info("Execution result: {}", json)
+                        logger.info("Execution result: {}", res)
                     }
                 }
             }
             override fun beginExecuteOperation(parameters: InstrumentationExecuteOperationParameters): InstrumentationContext<ExecutionResult> {
                 return super.beginExecuteOperation(parameters)
             }
-
         }
     }
 
@@ -132,5 +133,4 @@ class SpqrFederationAutoConfiguration {
         println(printedSchema)
         println(" >>>>>>>>>>>    ")
     }
-
 }
