@@ -7,7 +7,6 @@ import io.bsamartins.director.Director
 import io.bsamartins.director.DirectorService
 import io.bsamartins.service.director.model.types.DirectorModel
 
-
 @DgsComponent
 class DirectorResolver(private val directorService: DirectorService) {
 

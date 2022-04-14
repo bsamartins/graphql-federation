@@ -21,6 +21,9 @@ private fun Movie.toModel(): MovieModel {
     return MovieModel(
         movieId = this.id,
         title = this.title,
-        director = DirectorModel(this.directorId)
+        director = DirectorModel(
+            directorId = director.id,
+            salary = director.salary.toDouble(),
+        )
     )
 }

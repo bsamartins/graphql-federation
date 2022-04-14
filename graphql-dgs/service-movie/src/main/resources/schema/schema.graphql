@@ -11,4 +11,5 @@ type MovieModel @key(fields: "movieId") {
 
 type DirectorModel @key(fields: "directorId") @extends {
     directorId: Int! @external
+    salary: Float!
 }
