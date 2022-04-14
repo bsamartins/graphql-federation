@@ -5,8 +5,9 @@ import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
 @Recorder
-class EntitiesRecorder {
-    fun createHandler(entities: List<String>?): Handler<RoutingContext> {
+open class EntitiesRecorder {
+    open fun createHandler(entities: List<String>): Handler<RoutingContext> {
+        println("EntitiesRecorder -> $entities")
         return DevEndpointHandler(entities)
     }
 }
