@@ -7,7 +7,6 @@ import io.bsamartins.movie.MovieService
 import io.bsamartins.service.movie.model.types.DirectorModel
 import io.bsamartins.service.movie.model.types.MovieModel
 
-
 @DgsComponent
 class MovieResolver(private val movieService: MovieService) {
 
