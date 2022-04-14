@@ -1,5 +1,6 @@
 type Query {
     findMovies: [MovieModel]
+    findMovieById(id: Int!): MovieModel
 }
 
 type MovieModel @key(fields: "movieId") {

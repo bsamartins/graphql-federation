@@ -10,7 +10,6 @@ class DirectorApplication {
 
     @Bean
     fun directorService() = DirectorService()
-
 }
 
 fun main() {

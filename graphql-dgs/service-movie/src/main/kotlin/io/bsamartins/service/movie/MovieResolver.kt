@@ -13,6 +13,9 @@ class MovieResolver(private val movieService: MovieService) {
 
     @DgsQuery
     fun findMovies(): List<MovieModel> = movieService.findAll().map { it.toModel() }
+
+    @DgsQuery
+    fun findMovieById(id: Int): MovieModel? = movieService.findById(id)?.toModel()
 }
 
 private fun Movie.toModel(): MovieModel {

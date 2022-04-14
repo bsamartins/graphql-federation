@@ -1,5 +1,6 @@
 type Query {
-    findDirectors: [DirectorModel]
+    findDirectors: [DirectorModel!]!
+    findDirectorById(id: Int!): DirectorModel
 }
 
 type DirectorModel @key(fields: "directorId") {

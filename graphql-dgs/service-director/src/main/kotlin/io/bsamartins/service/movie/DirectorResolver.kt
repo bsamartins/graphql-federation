@@ -14,6 +14,9 @@ class DirectorResolver(private val directorService: DirectorService) {
     @DgsQuery
     fun findDirectors(): List<DirectorModel> = directorService.findAll().map { it.toModel() }
 
+    @DgsQuery
+    fun findDirectorById(id: Int): DirectorModel? = directorService.findById(id)?.toModel()
+
     @DgsEntityFetcher(name = "DirectorModel")
     fun director(values: Map<String, Any?>): DirectorModel? {
         val directorId = values["directorId"] as Int
