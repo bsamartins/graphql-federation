@@ -15,14 +15,61 @@ import graphql.schema.*
 import graphql.schema.idl.SchemaPrinter
 import io.bsamartins.spqr.SimpleNameClassTypeResolver
 import io.leangen.graphql.GraphQLSchemaGenerator
+import io.leangen.graphql.spqr.spring.annotations.GraphQLApi
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.getBeansWithAnnotation
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-
+import org.springframework.core.annotation.AnnotationUtils
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.jvm.javaMethod
+import io.bsamartins.spqr.federation.annotation.DataFetcher as DataFetcherAnnotation
 
 @Configuration
 class SpqrFederationAutoConfiguration {
+
+    @Bean
+    fun dataFetcher(applicationContext: ApplicationContext): FederationDataFetcher {
+        val dataFetchersMap = mutableMapOf<String, DataFetcherExecutor>()
+        applicationContext.getBeansWithAnnotation<GraphQLApi>().forEach { (name, bean) ->
+            bean::class.memberFunctions.forEach members@{ function ->
+                val ann = AnnotationUtils.findAnnotation(function.javaMethod, DataFetcherAnnotation::class.java)
+                    ?: return@members
+                val attributes = AnnotationUtils.getAnnotationAttributes(ann)
+                val type = attributes["type"] as String
+                dataFetchersMap[type] = DataFetcherExecutor(instance = bean, type = type, function = function)
+            }
+        }
+
+        dataFetchersMap.forEach { t, u -> println("$t=$u") }
+
+        return object : FederationDataFetcher() {
+
+            private val logger = LoggerFactory.getLogger(this::class.java)
+
+            override fun get(environment: DataFetchingEnvironment, representations: List<Map<String, *>>): List<*> {
+                return representations.map { resolve(environment, it) }
+            }
+
+            private fun resolve(environment: DataFetchingEnvironment, representation: Map<String, *>): Any? {
+                val typeName = representation["__typename"] as String
+                logger.info("Resolving type: {}", typeName)
+                val type = environment.graphQLSchema.getType(typeName)
+                logger.info("Schema type: {}", type)
+
+                val executor = dataFetchersMap[typeName]
+                return if (executor != null) {
+                    executor.execute(representation)
+                } else {
+                    logger.error("No resolver for type: '{}'", typeName)
+                    null
+                }
+            }
+        }
+    }
 
     @Bean
     fun graphQLSchema(
@@ -106,7 +153,8 @@ class SpqrFederationAutoConfiguration {
                     "Query: {}",
                     parameters.executionInput.query
                         .replace("\n", "")
-                        .replace("\r", ""))
+                        .replace("\r", "")
+                )
                 return SimpleInstrumentationContext.whenCompleted { res, t ->
                     if (t == null) {
                         logger.info("Execution result: {}", res)
@@ -132,5 +180,12 @@ class SpqrFederationAutoConfiguration {
         ).print(schema)
         println(printedSchema)
         println(" >>>>>>>>>>>    ")
+    }
+}
+
+data class DataFetcherExecutor(val instance: Any, val type: String, val function: KFunction<*>) {
+
+    fun execute(params: Map<String, Any?>): Any? {
+        return function.call(instance, params)
     }
 }

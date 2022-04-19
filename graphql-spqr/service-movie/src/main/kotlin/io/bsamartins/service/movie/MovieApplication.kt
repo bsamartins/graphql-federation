@@ -9,9 +9,6 @@ import org.springframework.context.annotation.Bean
 class MovieApplication {
 
     @Bean
-    fun entitiesDataFetcher(): EntitiesDataFetcher = EntitiesDataFetcher(movieService())
-
-    @Bean
     fun movieService(): MovieService {
         return MovieService()
     }

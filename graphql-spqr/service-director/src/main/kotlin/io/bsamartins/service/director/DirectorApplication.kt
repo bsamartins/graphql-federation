@@ -8,11 +8,6 @@ import org.springframework.context.annotation.Bean
 @SpringBootApplication
 class DirectorApplication {
 
-    @Bean
-    fun entitiesDataFetcher(
-        directorService: DirectorService,
-    ): EntitiesDataFetcher = EntitiesDataFetcher(directorService)
-
     @Bean fun directorService() = DirectorService()
 }
 
