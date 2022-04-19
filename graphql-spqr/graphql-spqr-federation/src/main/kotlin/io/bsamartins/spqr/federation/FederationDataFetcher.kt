@@ -5,7 +5,7 @@ import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import org.slf4j.LoggerFactory
 
-abstract class FederationDataFetcher : DataFetcher<List<*>> {
+class FederationDataFetcher(private val dataFetchersMap: Map<String, DataFetcherExecutor>) : DataFetcher<List<*>> {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -19,5 +19,22 @@ abstract class FederationDataFetcher : DataFetcher<List<*>> {
         return environment.getArgument(_Entity.argumentName)
     }
 
-    abstract fun get(environment: DataFetchingEnvironment, representations: List<Map<String, *>>): List<*>
+    fun get(environment: DataFetchingEnvironment, representations: List<Map<String, *>>): List<*> {
+        return representations.map { get(environment, it) }
+    }
+
+    fun get(environment: DataFetchingEnvironment, representation: Map<String, *>): Any? {
+        val typeName = representation["__typename"] as String
+        logger.info("Resolving type: {}", typeName)
+        val type = environment.graphQLSchema.getType(typeName)
+        logger.info("Schema type: {}", type)
+
+        val executor = dataFetchersMap[typeName]
+        return if (executor != null) {
+            executor.execute(representation)
+        } else {
+            logger.error("No resolver for type: '{}'", typeName)
+            null
+        }
+    }
 }

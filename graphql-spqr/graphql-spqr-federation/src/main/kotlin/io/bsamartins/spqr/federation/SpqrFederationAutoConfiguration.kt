@@ -32,7 +32,10 @@ import io.bsamartins.spqr.federation.annotation.DataFetcher as DataFetcherAnnota
 class SpqrFederationAutoConfiguration {
 
     @Bean
-    fun dataFetcher(applicationContext: ApplicationContext): FederationDataFetcher {
+    fun dataFetcher(
+        applicationContext: ApplicationContext,
+        graphQLSchemaGenerator: GraphQLSchemaGenerator,
+    ): FederationDataFetcher {
         val dataFetchersMap = mutableMapOf<String, DataFetcherExecutor>()
         applicationContext.getBeansWithAnnotation<GraphQLApi>().forEach { (name, bean) ->
             bean::class.memberFunctions.forEach members@{ function ->
@@ -44,31 +47,8 @@ class SpqrFederationAutoConfiguration {
             }
         }
 
-        dataFetchersMap.forEach { t, u -> println("$t=$u") }
-
-        return object : FederationDataFetcher() {
-
-            private val logger = LoggerFactory.getLogger(this::class.java)
-
-            override fun get(environment: DataFetchingEnvironment, representations: List<Map<String, *>>): List<*> {
-                return representations.map { resolve(environment, it) }
-            }
-
-            private fun resolve(environment: DataFetchingEnvironment, representation: Map<String, *>): Any? {
-                val typeName = representation["__typename"] as String
-                logger.info("Resolving type: {}", typeName)
-                val type = environment.graphQLSchema.getType(typeName)
-                logger.info("Schema type: {}", type)
-
-                val executor = dataFetchersMap[typeName]
-                return if (executor != null) {
-                    executor.execute(representation)
-                } else {
-                    logger.error("No resolver for type: '{}'", typeName)
-                    null
-                }
-            }
-        }
+        dataFetchersMap.forEach { (t, u) -> println("$t=$u") }
+        return FederationDataFetcher(dataFetchersMap)
     }
 
     @Bean
