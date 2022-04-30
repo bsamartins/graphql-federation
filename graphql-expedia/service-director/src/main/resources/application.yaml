@@ -1,0 +1,13 @@
+graphql:
+  federation:
+    enabled: true
+    tracing:
+      debug: true
+      enabled: true
+  packages: io.bsamartins.service.movie
+  playground:
+    enabled: true
+    endpoint: gui
+
+server:
+  port: 8081

@@ -24,6 +24,9 @@ include(":common:service-director")
 include(":graphql-dgs:service-movie")
 include(":graphql-dgs:service-director")
 
+include(":graphql-expedia:service-movie")
+include(":graphql-expedia:service-director")
+
 include(":graphql-spqr:service-movie")
 include(":graphql-spqr:service-director")
 include(":graphql-spqr:graphql-spqr-federation")
