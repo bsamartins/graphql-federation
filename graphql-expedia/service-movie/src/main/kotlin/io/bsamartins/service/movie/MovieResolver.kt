@@ -7,7 +7,7 @@ import io.bsamartins.movie.MovieService
 import org.springframework.stereotype.Component
 
 @Component
-class MovieResolver(private val movieService: MovieService): Query {
+class MovieResolver(private val movieService: MovieService) : Query {
 
     fun findMovies(): List<MovieModel> = movieService.findAll().map { it.toModel() }
 
